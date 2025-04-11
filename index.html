@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gym Tracker Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#3b82f6" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').then(registration => {
+          console.log('SW registrato con successo:', registration);
+        }).catch(error => {
+          console.error('Errore nella registrazione del SW:', error);
+        });
+      });
+    }
+  </script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <div class="max-w-3xl mx-auto p-4">
+    <h1 class="text-3xl font-bold text-center text-blue-600 mb-4">Gym Tracker Pro</h1>
+    <div class="bg-white shadow rounded-lg p-4 mb-4">
+      <h2 class="text-xl font-semibold mb-2">Registra Allenamento</h2>
+      <form id="log-form" class="space-y-2">
+        <input type="text" placeholder="Nome esercizio" id="exercise" class="w-full p-2 border rounded">
+        <input type="number" placeholder="Reps" id="reps" class="w-full p-2 border rounded">
+        <input type="number" placeholder="Peso (kg)" id="weight" class="w-full p-2 border rounded">
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Salva</button>
+      </form>
+    </div>
+    <div class="bg-white shadow rounded-lg p-4">
+      <h2 class="text-xl font-semibold mb-2">Storico</h2>
+      <ul id="history" class="space-y-2 text-sm"></ul>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('log-form');
+    const historyList = document.getElementById('history');
+
+    let logs = JSON.parse(localStorage.getItem('gymLogs') || '[]');
+
+    function renderLogs() {
+      historyList.innerHTML = logs.map(log =>
+        `<li class="border-b pb-2">${log.exercise}: ${log.reps} reps x ${log.weight} kg</li>`
+      ).join('');
+    }
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const exercise = document.getElementById('exercise').value;
+      const reps = document.getElementById('reps').value;
+      const weight = document.getElementById('weight').value;
+
+      logs.unshift({ exercise, reps, weight });
+      localStorage.setItem('gymLogs', JSON.stringify(logs));
+      renderLogs();
+      form.reset();
+    });
+
+    renderLogs();
+  </script>
+</body>
+</html>
